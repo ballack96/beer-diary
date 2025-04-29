@@ -1,27 +1,19 @@
 import streamlit as st
-import pandas as pd
 
-import os
-from init_db import initialize_database_if_needed
+st.set_page_config(page_title="🍻 Beer Diary", page_icon="🍺", layout="wide")
 
-# Check if DB exists, if not, initialize
-if not os.path.exists('craft_beer.db'):
-    initialize_database_if_needed()
-
-st.set_page_config(page_title="🍻 Craft Beer Dashboard", layout="wide")
-
-with st.sidebar:
-    st.markdown("## 🍺 Craft Beer Dashboard")
-    st.markdown("---")
-
-# Main page content
-st.title("🍺 Craft Beer Enthusiasts Dashboard")
-st.write("Use the sidebar to navigate between pages.")
+st.title("🍻 Welcome to Beer Diary!")
 
 st.markdown("""
+Track your beer tasting journey, explore craft beers,  
+and save your personalized tasting notes!
+
+**Pages Available:**
+- 🍺 Explore Beers
+- 📔 My Tasting Journal
+- 🗺️ Brewery Locator
+
 ---
-**Pages Available**:
-- Explore craft beers
-- Track your tasting notes
-- Explore beer styles with charts
 """)
+
+st.image("https://images.unsplash.com/photo-1514516870926-206b6c1bb28d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGJlZXJ8ZW58MHx8fHwxNjg2MzcxOTcz&ixlib=rb-4.0.3&q=80&w=1080", use_column_width=True)
