@@ -1,0 +1,15 @@
+[theme]
+base="light"
+
+[server]
+headless = true
+
+[client]
+showSidebarNavigation = true
+toolbarMode = "minimal"
+
+[global]
+developmentMode = false
+
+[runner]
+magicEnabled = true
