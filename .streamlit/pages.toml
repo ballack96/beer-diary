@@ -1,0 +1,24 @@
+[[pages]]
+path = "app.py"
+name = "🏠 Home"
+icon = "house"
+
+[[pages]]
+path = "pages/2_🍻_Explore_Beers.py"
+name = "🍻 Explore Beers"
+icon = "beers"
+
+[[pages]]
+path = "pages/3_📔_My_Tasting_Journal.py"
+name = "📔 My Tasting Journal"
+icon = "book"
+
+[[pages]]
+path = "pages/4_📊_Style_Explorer.py"
+name = "📊 Style Explorer"
+icon = "chart-bar"
+
+[[pages]]
+path = "pages/5_🗺️_Brewery_Locator.py"
+name = "🗺️ Brewery Locator"
+icon = "map"
