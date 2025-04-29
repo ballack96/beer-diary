@@ -14,10 +14,7 @@ developmentMode = false
 [runner]
 magicEnabled = true
 
-[browser]
-gatherUsageStats = false
-
 [ui]
 pageTitle = "🍻 Beer Diary"
 pageIcon = "🍺"
-layout = "wide"
+layout = "wide"  # ⬅️ Key part

@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import requests
 import sqlite3
+import plotly.express as px
+
+
 # ------------------------------
 # Function to fetch breweries
 # ------------------------------
@@ -70,6 +73,27 @@ else:
     # Sidebar Filters
     st.sidebar.header("🔎 Filter Breweries")
 
+    # Multi-select for State
+    all_states = sorted(breweries_df['state'].dropna().unique())
+    selected_states = st.sidebar.multiselect("Select State(s)", all_states, default=all_states)
+
+    # Filter by selected states
+    filtered_df = breweries_df[breweries_df['state'].isin(selected_states)]
+
+    # Multi-select for City (only cities in selected states)
+    all_cities = sorted(filtered_df['city'].dropna().unique())
+    selected_cities = st.sidebar.multiselect("Select City(s)", all_cities, default=all_cities)
+
+    # Final filtered DataFrame
+    filtered_df = filtered_df[filtered_df['city'].isin(selected_cities)]
+
+    # Multi-select for Brewery Type
+    all_types = sorted(filtered_df['brewery_type'].dropna().unique())
+    selected_types = st.sidebar.multiselect("Select Brewery Type(s)", all_types, default=all_types)
+
+    # Filter by selected types
+    filtered_df = filtered_df[filtered_df['brewery_type'].isin(selected_types)]
+
     states = sorted(breweries_df['state'].dropna().unique())
     selected_state = st.sidebar.selectbox("Select State", ["All"] + states)
 
@@ -122,3 +146,44 @@ else:
             'latitude': [brewery_details['latitude']],
             'longitude': [brewery_details['longitude']]
         }))
+
+
+    # Brewery Type Breakdown
+    if not filtered_df.empty:
+        st.markdown("### 📊 Brewery Type Breakdown")
+        brewery_counts = filtered_df['brewery_type'].value_counts().reset_index()
+        brewery_counts.columns = ['brewery_type', 'count']
+
+        fig = px.bar(
+            brewery_counts,
+            x='brewery_type',
+            y='count',
+            color='brewery_type',
+            title='Distribution of Brewery Types (Filtered)',
+            labels={'brewery_type': 'Type', 'count': 'Count'},
+            template='plotly_white'
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Top Cities by Brewery Count
+    if not filtered_df.empty:
+        st.markdown("### 🏙️ Top Cities by Number of Breweries")
+        top_cities = (
+            filtered_df['city']
+            .value_counts()
+            .reset_index()
+            .rename(columns={'index': 'city', 'city': 'count'})
+            .head(10)
+        )
+
+        fig2 = px.bar(
+            top_cities,
+            x='city',
+            y='count',
+            title='Top 10 Cities with Most Breweries (Filtered)',
+            labels={'city': 'City', 'count': 'Brewery Count'},
+            template='plotly_white',
+            color='count',
+            color_continuous_scale='blues'
+        )
+        st.plotly_chart(fig2, use_container_width=True)
