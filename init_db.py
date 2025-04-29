@@ -1,5 +1,11 @@
 import sqlite3
 import pandas as pd
+import os
+
+# --- Delete existing database file ---
+if os.path.exists('craft_beer.db'):
+    os.remove('craft_beer.db')
+    print("🗑️ Existing craft_beer.db deleted.")
 
 # Connect to (or create) the database
 conn = sqlite3.connect('craft_beer.db')

@@ -22,3 +22,8 @@ icon = "chart-bar"
 path = "pages/5_🗺️_Brewery_Locator.py"
 name = "🗺️ Brewery Locator"
 icon = "map"
+
+[[pages]]
+path = "pages/6_📜_My_Favorite_Breweries.py"
+name = "🗺️ My Favorite Breweries.py"
+icon = "scroll"
