@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 # Connect to (or create) the database
 conn = sqlite3.connect('craft_beer.db')

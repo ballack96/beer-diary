@@ -19,6 +19,18 @@ def load_journal(user_id):
     conn.close()
     return df
 
+# Function to get color badge based on average rating
+def get_rating_badge(avg_rating):
+    if avg_rating >= 4.0:
+        color = "🟢 Excellent"
+    elif avg_rating >= 3.0:
+        color = "🟡 Good"
+    elif avg_rating >= 2.0:
+        color = "🟠 Average"
+    else:
+        color = "🔴 Poor"
+    return color
+
 # ------------------------------
 # Streamlit Page
 # ------------------------------
@@ -31,11 +43,22 @@ if journal_df.empty:
 else:
     st.write(f"Total Beers Rated: **{len(journal_df)}**")
 
+    # Export Button
+    st.markdown("---")
+    csv = journal_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="⬇️ Download My Tasting Journal as CSV",
+        data=csv,
+        file_name='tasting_journal.csv',
+        mime='text/csv'
+    )
+
+    # Display Journal Entries
     for idx, row in journal_df.iterrows():
         st.markdown("---")
         st.markdown(f"### 🍺 {row['beer_id']}")
 
-        # Ratings Breakdown in columns
+        # Ratings Breakdown
         col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
             st.metric("👀 Look", f"{row['look']}/5")
@@ -48,8 +71,9 @@ else:
         with col5:
             st.metric("⭐ Overall", f"{row['overall']}/5")
 
-        st.markdown(f"**Average Rating:** {round(row['average_rating'],2)}/5 ⭐")
+        avg_rating = round(row['average_rating'], 2)
+        badge = get_rating_badge(avg_rating)
 
-        # Notes and Tasting Date
+        st.markdown(f"**Average Rating:** {avg_rating}/5 {badge}")
         st.markdown(f"**Notes:** {row['user_notes']}")
         st.caption(f"Tasted on: {row['tasted_on']}")
