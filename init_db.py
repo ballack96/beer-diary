@@ -107,6 +107,7 @@ df = df.drop(columns=["Min IBU", "Max IBU"])
 df['abv'] = df['abv'].fillna(0)
 df['ibu'] = df['ibu'].fillna(0)
 df['description'] = df['description'].fillna('No description available.')
+df['description'] = df['description'].str.replace('Note:', '', regex=True)  # Clean description text
 
 # --- Insert into beers_catalog Table ---
 cursor.execute('DELETE FROM beers_catalog')  # Clear old entries if any
