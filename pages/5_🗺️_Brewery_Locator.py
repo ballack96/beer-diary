@@ -58,10 +58,11 @@ def save_favorite_brewery(user_id, brewery):
 # ------------------------------
 st.title("🗺️ Brewery Map Locator (Live)")
 
-# if st.button("🔄 Refresh Breweries"):
-#     st.cache_data.clear()
-#     st.experimental_rerun()
+if st.button("🔄 Refresh Breweries"):
+    st.cache_data.clear()
+    st.experimental_rerun()
 
+breweries_df = fetch_breweries()
 
 if breweries_df.empty:
     st.warning("No breweries found. Please try refreshing.")
