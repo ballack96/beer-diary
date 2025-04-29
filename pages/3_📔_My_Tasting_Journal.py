@@ -1,28 +1,22 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import plotly.express as px
 
 def get_connection():
     return sqlite3.connect('craft_beer.db')
 
-def load_beers():
-    conn = get_connection()
-    beers_df = pd.read_sql_query("SELECT * FROM beers", conn)
-    conn.close()
-    return beers_df
+st.title("📔 My Tasting Journal")
 
-st.title("📊 Beer Style Explorer")
+conn = get_connection()
+journal = pd.read_sql_query("""
+    SELECT tj.user_rating, tj.user_notes, b.name, b.style, b.abv
+    FROM tasting_journal tj
+    JOIN beers b ON tj.beer_id = b.beer_id
+    WHERE tj.user_id = 'guest'
+""", conn)
+conn.close()
 
-beers = load_beers()
-
-fig = px.scatter(
-    beers, 
-    x="abv", 
-    y="ibu", 
-    color="style",
-    hover_data=["name", "brewery_name"],
-    labels={"abv": "Alcohol % (ABV)", "ibu": "Bitterness (IBU)"},
-    title="ABV vs IBU by Beer Style"
-)
-st.plotly_chart(fig, use_container_width=True)
+if not journal.empty:
+    st.dataframe(journal)
+else:
+    st.info("No tasting entries yet. Go explore and add some beers! 🍻")

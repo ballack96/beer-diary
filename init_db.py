@@ -61,6 +61,18 @@ cursor.execute('''
     )
 ''')
 
+# Create tasting journal table if it doesn't exist
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS tasting_journal (
+        journal_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        beer_id TEXT,
+        user_rating REAL,
+        user_notes TEXT,
+        tasted_on DATE DEFAULT CURRENT_DATE
+    )
+''')
+
 # Seed with some sample beers
 sample_beers = [
     ("beer_001", "Pliny the Elder", "Russian River Brewing", "Double IPA", 8.0, 100, "Legendary hoppy Double IPA.", "USA", "", 4.7),

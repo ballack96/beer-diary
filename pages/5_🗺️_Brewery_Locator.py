@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
 import requests
-
+import sqlite3
 # ------------------------------
 # Function to fetch breweries
 # ------------------------------
 @st.cache_data
 def fetch_breweries():
-    url = "https://api.openbrewerydb.org/v1/breweries?per_page=100"
+    url = "https://api.openbrewerydb.org/v1/breweries?per_page=80"
     response = requests.get(url)
     if response.status_code == 200:
         breweries = response.json()
@@ -60,7 +60,7 @@ st.title("🗺️ Brewery Map Locator (Live)")
 
 if st.button("🔄 Refresh Breweries"):
     st.cache_data.clear()
-    st.experimental_rerun()
+    st.rerun()
 
 breweries_df = fetch_breweries()
 
