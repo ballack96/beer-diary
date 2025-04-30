@@ -1,11 +1,6 @@
 [theme]
 # Streamlit theme configurations
 base = "dark"  # Default theme, either "light" or "dark"
-primaryColor = "#F63366"
-backgroundColor = "#262730"
-secondaryBackgroundColor = "#1E1E1E"
-textColor = "#FAFAFA"
-font = "sans serif"
 
 [server]
 headless = true

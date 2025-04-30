@@ -1,40 +1,11 @@
 import streamlit as st
 st.set_page_config(page_title="🍻 Explore Beers", page_icon="🍺", layout="wide")
 
-# Import theme utilities
-try:
-    from theme_utils import apply_theme
-    # Apply the theme and get the current theme name
-    current_theme = apply_theme()
-except ImportError:
-    # Fallback if theme_utils.py doesn't exist yet
-    if 'theme' not in st.session_state:
-        st.session_state.theme = "Light"
-    current_theme = st.sidebar.radio("🌓 Theme", ["Light", "Dark"], 
-                            horizontal=True, 
-                            index=0 if st.session_state.theme == "Light" else 1)
-    if current_theme != st.session_state.theme:
-        st.session_state.theme = current_theme
+from theme_utils import get_app_theme
+_, text_color, _, _, plotly_template = get_app_theme()
 
-# Apply CSS for custom theming
-if st.session_state.theme == "Dark":
-    st.markdown("""
-    <style>
-    .stApp {
-        background-color: #262730;
-        color: #FFFFFF;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-    <style>
-    .stApp {
-        background-color: #FFFFFF;
-        color: #262730;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+
+
 
 import sqlite3
 import pandas as pd
@@ -79,7 +50,7 @@ def truncate_label(label, max_len=24):
 # ------------------------------
 # Streamlit Page
 # ------------------------------
-st.title("🍻 Explore Beers (Database Loaded)")
+st.markdown(f"<h1 style='color:{text_color}'>🍻 Explore Beers</h1>", unsafe_allow_html=True)
 
 # -------------------------------
 # Initialize Journal in Session

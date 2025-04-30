@@ -1,22 +1,12 @@
 import streamlit as st
 st.set_page_config(page_title="📊 Beer Style Explorer", page_icon="📈", layout="wide")
 
-# Import theme utilities
-try:
-    from theme_utils import apply_theme, get_plotly_theme
-    # Apply the theme and get the current theme name
-    current_theme, plotly_theme = apply_theme()
-except ImportError:
-    # Fallback if theme_utils.py doesn't exist yet
-    if 'theme' not in st.session_state:
-        st.session_state.theme = "Light"
-    current_theme = st.sidebar.radio("🌓 Theme", ["Light", "Dark"], 
-                            horizontal=True, 
-                            index=0 if st.session_state.theme == "Light" else 1)
-    if current_theme != st.session_state.theme:
-        st.session_state.theme = current_theme
-    # Default plotly theme when theme_utils is not available
-    plotly_theme = "plotly_white" if st.session_state.theme == "Light" else "plotly_dark"
+
+from theme_utils import get_app_theme
+
+_, text_color, _, _, plotly_template = get_app_theme()
+
+
 
 import sqlite3
 import pandas as pd
@@ -39,7 +29,7 @@ def load_beers():
 # ------------------------------
 # Streamlit Page
 # ------------------------------
-st.title("📊 Beer Style Explorer")
+st.markdown(f"<h1 style='color:{text_color}'>📊 Style Explorer</h1>", unsafe_allow_html=True)
 
 # Load Data
 beers_df = load_beers()
@@ -105,7 +95,7 @@ else:
             labels={'style': 'Beer Style', 'count': 'Number of Beers'},
             color='count',
             color_continuous_scale='viridis',
-            template=plotly_theme
+            template=plotly_template
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -115,7 +105,7 @@ else:
             values='count',
             title='Beer Styles - Distribution (Pie Chart)',
             hole=0.4,
-            template=plotly_theme
+            template=plotly_template
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -127,7 +117,7 @@ else:
         nbins=20,
         title='ABV (%) Distribution',
         labels={'abv': 'Alcohol By Volume (%)'},
-        template=plotly_theme
+        template=plotly_template
     )
     st.plotly_chart(fig2, use_container_width=True)
 
@@ -159,7 +149,7 @@ else:
         hover_data={'average_abv': True, 'count': True, 'example_breweries': True},
         title='Beer Styles: Avg ABV vs Frequency (with Brewery Examples)',
         labels={'average_abv': 'Avg ABV (%)', 'count': 'Number of Beers'},
-        template=plotly_theme
+        template=plotly_template
     )
     st.plotly_chart(fig3, use_container_width=True)
 

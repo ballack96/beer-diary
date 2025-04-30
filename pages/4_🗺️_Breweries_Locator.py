@@ -1,23 +1,12 @@
 import streamlit as st
-st.set_page_config(page_title="🗺️ Brewery Locator", layout="wide")
+st.set_page_config(page_title="🗺️ Brewery Locator", page_icon="🗺️", layout="wide")
 
-# Import theme utilities
-try:
-    from theme_utils import apply_theme, get_plotly_theme
-    # Apply the theme and get the current theme name
-    current_theme, plotly_theme = apply_theme()
-except ImportError:
-    # Fallback if theme_utils.py doesn't exist yet
-    if 'theme' not in st.session_state:
-        st.session_state.theme = "Light"
-    current_theme = st.sidebar.radio("🌓 Theme", ["Light", "Dark"], 
-                            horizontal=True, 
-                            index=0 if st.session_state.theme == "Light" else 1)
-    if current_theme != st.session_state.theme:
-        st.session_state.theme = current_theme
-    # Default plotly theme when theme_utils is not available
-    plotly_theme = "plotly_white" if st.session_state.theme == "Light" else "plotly_dark"
+from theme_utils import get_app_theme
+base, text_color, _, _, plotly_template = get_app_theme()
 
+
+
+import pydeck as pdk
 import pandas as pd
 import sqlite3
 import requests
@@ -100,7 +89,7 @@ def truncate_label(label, max_len=20):
 # ------------------------------
 # Page Setup
 # ------------------------------
-st.title("🗺️ Brewery Locator")
+st.markdown(f"<h1 style='color:{text_color}'>🗺️ Brewery Locator</h1>", unsafe_allow_html=True)
 
 # -------------------------------
 # Inline Controls for Pagination
@@ -169,7 +158,18 @@ else:
     # ------------------------------
     # Brewery Map
     # ------------------------------
-    st.map(filtered_df[['latitude', 'longitude']])
+    map_style = "mapbox://styles/mapbox/light-v10" if base == "light" else "mapbox://styles/mapbox/dark-v10"
+    st.pydeck_chart(pdk.Deck(
+        map_style=map_style,
+        initial_view_state=pdk.ViewState(latitude=39.5, longitude=-98.35, zoom=3),
+        layers=[pdk.Layer(
+            "ScatterplotLayer",
+            data=filtered_df,
+            get_position='[longitude, latitude]',
+            get_color='[200, 30, 0, 160]',
+            get_radius=40000,
+        )],
+    ))
 
     # ------------------------------
     # Brewery Type Breakdown
@@ -185,7 +185,7 @@ else:
         y='count',
         title='Distribution of Brewery Types',
         labels={'type': 'Type', 'count': 'Count'},
-        template=plotly_theme,
+        template=plotly_template,
         color='type'
     )
     st.plotly_chart(fig1, use_container_width=True)
@@ -210,7 +210,7 @@ else:
         x='city',
         y='count',
         title='Top Cities by Number of Breweries',
-        template=plotly_theme,
+        template=plotly_template,
         color='count',
         color_continuous_scale='blues'
     )

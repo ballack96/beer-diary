@@ -1,19 +1,12 @@
 import streamlit as st
-st.set_page_config(page_title="📔 My Tasting Journal", page_icon="📓", layout="wide")
-# Import theme utilities
-try:
-    from theme_utils import apply_theme
-    # Apply the theme and get the current theme name
-    current_theme = apply_theme()
-except ImportError:
-    # Fallback if theme_utils.py doesn't exist yet
-    if 'theme' not in st.session_state:
-        st.session_state.theme = "Light"
-    current_theme = st.sidebar.radio("🌓 Theme", ["Light", "Dark"], 
-                            horizontal=True, 
-                            index=0 if st.session_state.theme == "Light" else 1)
-    if current_theme != st.session_state.theme:
-        st.session_state.theme = current_theme
+st.set_page_config(page_title="📔 My Tasting Journal", page_icon="📔", layout="wide")
+
+
+from theme_utils import get_app_theme
+_, text_color, _, _, _ = get_app_theme()
+
+
+
 
 
 import sqlite3
@@ -93,7 +86,9 @@ def delete_entry(beer_id, tasted_on, user_id="guest"):
 # ------------------------------
 # Streamlit Page
 # ------------------------------
-st.title("📔 My Tasting Journal")
+st.markdown(f"<h1 style='color:{text_color}'>📔 My Tasting Journal</h1>", unsafe_allow_html=True)
+
+st.markdown(f"<p style='color:{text_color}'>All your rated beers and notes appear here.</p>", unsafe_allow_html=True)
 
 # -------------------------------
 # Combine session + DB journal

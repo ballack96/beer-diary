@@ -1,19 +1,9 @@
 import streamlit as st
-st.set_page_config(page_title="📜 My Favorite Breweries", page_icon="📈", layout="wide")
-# Import theme utilities
-try:
-    from theme_utils import apply_theme
-    # Apply the theme and get the current theme name
-    current_theme = apply_theme()
-except ImportError:
-    # Fallback if theme_utils.py doesn't exist yet
-    if 'theme' not in st.session_state:
-        st.session_state.theme = "Light"
-    current_theme = st.sidebar.radio("🌓 Theme", ["Light", "Dark"], 
-                            horizontal=True, 
-                            index=0 if st.session_state.theme == "Light" else 1)
-    if current_theme != st.session_state.theme:
-        st.session_state.theme = current_theme
+st.set_page_config(page_title="📜 My Favorite Breweries", page_icon="📜", layout="wide")
+
+from theme_utils import get_app_theme
+_, text_color, _, _, _ = get_app_theme()
+
 
 import sqlite3
 import pandas as pd
@@ -46,7 +36,10 @@ def remove_favorite(fav_id):
 # ------------------------------
 # Streamlit Page
 # ------------------------------
-st.title("📜 My Favorite Breweries")
+st.markdown(f"<h2 style='color:{text_color}'>📜 My Favorite Breweries</h2>", unsafe_allow_html=True)
+
+st.write("Display saved favorites here.")
+
 
 favorites_df = load_favorites(user_id="guest")
 
