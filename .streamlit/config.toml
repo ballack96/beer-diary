@@ -1,9 +1,10 @@
 [theme]
-base="dark"
+# Streamlit theme configurations
+base = "dark"  # Default theme, either "light" or "dark"
 primaryColor = "#F63366"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F0F2F6"
-textColor = "#262730"
+backgroundColor = "#262730"
+secondaryBackgroundColor = "#1E1E1E"
+textColor = "#FAFAFA"
 font = "sans serif"
 
 [server]
@@ -11,7 +12,6 @@ headless = true
 
 [client]
 toolbarMode = "minimal"
-showSidebarNavigation = true
 
 [global]
 developmentMode = false
@@ -20,6 +20,4 @@ developmentMode = false
 magicEnabled = true
 
 [ui]
-pageTitle = "🍻 Beer Diary"
-pageIcon = "🍺"
-layout = "wide"  # ⬅️ Key part
+hideTopBar = false
