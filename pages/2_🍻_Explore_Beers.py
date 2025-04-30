@@ -1,7 +1,11 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-import requests
+
+# -------------------------------
+# Theme Toggle
+# -------------------------------
+theme = st.sidebar.radio("🌓 Theme", ["Light", "Dark"], horizontal=True)
 
 # ------------------------------
 # Database connection
@@ -10,7 +14,7 @@ def get_connection():
     return sqlite3.connect('craft_beer.db')
 
 # Load beers from database
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def load_beers():
     conn = get_connection()
     df = pd.read_sql_query('SELECT * FROM beers_catalog', conn)
@@ -33,64 +37,67 @@ def add_to_journal(user_id, beer_name, look, smell, taste, feel, overall, notes)
     conn.commit()
     conn.close()
 
+# -------------------------------
+# Truncate Labels for Chips (Optional)
+# -------------------------------
+def truncate_label(label, max_len=24):
+    return label if len(label) <= max_len else label[:max_len] + "..."
+
 # ------------------------------
 # Streamlit Page
 # ------------------------------
+st.set_page_config(page_title="🍻 Explore Beers", page_icon="🍺", layout="wide")
 st.title("🍻 Explore Beers (Database Loaded)")
 
+# -------------------------------
+# Load Data
+# -------------------------------
 beers_df = load_beers()
 
 if beers_df.empty:
-    st.warning("No beers found.")
+    st.warning("No beers found in database.")
 else:
-    # Sidebar Filters
-    st.sidebar.header("🔎 Filters")
+    st.sidebar.header("🔍 Filters")
 
-    # Style Dropdown
-    all_styles = sorted(beers_df['style'].dropna().unique())
-    selected_style = st.sidebar.selectbox(
-        "Select Beer Style",
-        ["All Styles"] + all_styles
-    )
+    # -------------------------------
+    # Filters
+    # -------------------------------
+    styles = sorted(beers_df['style'].dropna().unique())
+    style_labels = [truncate_label(s) for s in styles]
+    style_map = dict(zip(style_labels, styles))
 
-    # ABV Slider
+    selected_style_labels = st.sidebar.multiselect("Select Beer Style(s)", style_labels, default=style_labels)
+    selected_styles = [style_map[s] for s in selected_style_labels]
+
     abv_min = float(beers_df['abv'].min())
     abv_max = float(beers_df['abv'].max())
     selected_abv = st.sidebar.slider("Select ABV Range (%)", abv_min, abv_max, (abv_min, abv_max))
 
-    # Search bar
     search_term = st.text_input("🔍 Search for a beer by name...")
 
-    # Filtering
-    filtered_beers = beers_df.copy()
-
-    if selected_style != "All Styles":
-        filtered_beers = filtered_beers[filtered_beers['style'] == selected_style]
-
-    filtered_beers = filtered_beers[
-        (filtered_beers['abv'] >= selected_abv[0]) & (filtered_beers['abv'] <= selected_abv[1])
+    # -------------------------------
+    # Apply Filters
+    # -------------------------------
+    filtered_df = beers_df[
+        (beers_df['style'].isin(selected_styles)) &
+        (beers_df['abv'] >= selected_abv[0]) &
+        (beers_df['abv'] <= selected_abv[1])
     ]
 
     if search_term:
-        filtered_beers = filtered_beers[filtered_beers['beer_name'].str.contains(search_term, case=False)]
+        filtered_df = filtered_df[filtered_df['beer_name'].str.contains(search_term, case=False)]
 
-    st.write(f"Showing {len(filtered_beers)} beers:")
+    st.markdown(f"Showing {len(filtered_df)} beers:")
 
-    for idx, row in filtered_beers.iterrows():
-        st.markdown("---")
-        st.markdown(f"### 🍺 {row['beer_name']}")
-        st.markdown(f"**Brewery:** {row['brewery_name']}")
-        st.markdown(f"**Style:** {row['style']}")
-        st.markdown(f"**ABV:** {row['abv']}% | **IBU:** {row['ibu']}")
-        st.markdown(f"**Description:** {row['description']}")
-
-        with st.expander("➕ Add to Tasting Journal"):
-            look = st.slider(f"Look (0-5)", 0.0, 5.0, 3.0, step=0.5, key=f"look_{idx}")
-            smell = st.slider(f"Smell (0-5)", 0.0, 5.0, 3.0, step=0.5, key=f"smell_{idx}")
-            taste = st.slider(f"Taste (0-5)", 0.0, 5.0, 3.0, step=0.5, key=f"taste_{idx}")
-            feel = st.slider(f"Feel (0-5)", 0.0, 5.0, 3.0, step=0.5, key=f"feel_{idx}")
-            overall = st.slider(f"Overall (0-5)", 0.0, 5.0, 3.0, step=0.5, key=f"overall_{idx}")
-            notes = st.text_area(f"Your notes on {row['beer_name']}", key=f"notes_{idx}")
-            if st.button(f"Save {row['beer_name']}", key=f"save_{idx}"):
-                add_to_journal(user_id="guest", beer_name=row['beer_name'], look=look, smell=smell, taste=taste, feel=feel, overall=overall, notes=notes)
-                st.success(f"Saved {row['beer_name']} to your Tasting Journal! 🍻")
+    # -------------------------------
+    # Beer Cards
+    # -------------------------------
+    for _, row in filtered_df.iterrows():
+        with st.container():
+            st.subheader(f"🍺 {row['beer_name']}")
+            st.markdown(f"**Brewery:** {row['brewery_name']}")
+            st.markdown(f"**Style:** {row['style']}")
+            st.markdown(f"**ABV:** {row['abv']}% | **IBU:** {row['ibu']}")
+            st.markdown(f"**Description:** {row['description']}")
+            with st.expander("➕ Add to Tasting Journal"):
+                st.write("Tasting note/rating UI can go here.")

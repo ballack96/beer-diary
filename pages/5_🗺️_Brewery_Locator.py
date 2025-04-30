@@ -43,6 +43,10 @@ def truncate_label(label, max_len=22):
 st.set_page_config(page_title="🗺️ Brewery Locator", layout="wide")
 st.title("🗺️ Brewery Locator")
 
+if st.button("🔄 Refresh Breweries"):
+    st.cache_data.clear()
+    st.rerun()
+
 breweries_df = fetch_breweries()
 
 if breweries_df.empty:
@@ -140,3 +144,4 @@ else:
         filtered_df[['name', 'city', 'state', 'brewery_type', 'website_url']],
         use_container_width=True
     )
+

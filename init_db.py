@@ -3,9 +3,9 @@ import sqlite3
 import pandas as pd
 
 def initialize_database_if_needed():
-    # Delete old db
-    if os.path.exists('craft_beer.db'):
-        os.remove('craft_beer.db')
+    # # Delete old db
+    # if os.path.exists('craft_beer.db'):
+    #     os.remove('craft_beer.db')
 
     conn = sqlite3.connect('craft_beer.db')
     cursor = conn.cursor()
@@ -46,8 +46,8 @@ def initialize_database_if_needed():
         city TEXT,
         state TEXT,
         country TEXT,
-        website_url TEXT
-        guest_id TEXT,
+        website_url TEXT,
+        user_id TEXT
     )
     ''')
 
