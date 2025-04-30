@@ -28,6 +28,7 @@ def initialize_database_if_needed():
         journal_id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT,
         beer_id TEXT,
+        brewery_name TEXT,
         look REAL,
         smell REAL,
         taste REAL,
