@@ -1,10 +1,11 @@
 import streamlit as st
+st.set_page_config(page_title="🍻 Beer Diary", page_icon="🍺", layout="wide")
+
 import os
 from init_db import initialize_database_if_needed
 
 initialize_database_if_needed()
 
-st.set_page_config(page_title="🍻 Beer Diary", page_icon="🍺", layout="wide")
 
 theme = st.sidebar.radio("🌓 Theme", ["Light", "Dark"], horizontal=True)
 

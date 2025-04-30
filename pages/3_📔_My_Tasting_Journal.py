@@ -1,4 +1,8 @@
 import streamlit as st
+st.set_page_config(page_title="📔 My Tasting Journal", page_icon="📓", layout="wide")
+
+
+
 import sqlite3
 import pandas as pd
 
@@ -82,7 +86,6 @@ def delete_entry(beer_id, tasted_on, user_id="guest"):
 # ------------------------------
 # Streamlit Page
 # ------------------------------
-st.set_page_config(page_title="📔 My Tasting Journal", page_icon="📓", layout="wide")
 st.title("📔 My Tasting Journal")
 
 # -------------------------------

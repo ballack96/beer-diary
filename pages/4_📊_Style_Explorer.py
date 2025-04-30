@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title="📊 Beer Style Explorer", page_icon="📈", layout="wide")
+
 import sqlite3
 import pandas as pd
 import plotly.express as px
@@ -20,7 +22,6 @@ def load_beers():
 # ------------------------------
 # Streamlit Page
 # ------------------------------
-st.set_page_config(page_title="📊 Beer Style Explorer", page_icon="📈", layout="wide")
 st.title("📊 Beer Style Explorer")
 
 # Load Data

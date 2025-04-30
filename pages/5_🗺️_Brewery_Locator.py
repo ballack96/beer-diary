@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title="🗺️ Brewery Locator", layout="wide")
+
 import pandas as pd
 import requests
 import plotly.express as px
@@ -40,7 +42,6 @@ def truncate_label(label, max_len=22):
 # ------------------------------
 # Page Setup
 # ------------------------------
-st.set_page_config(page_title="🗺️ Brewery Locator", layout="wide")
 st.title("🗺️ Brewery Locator")
 
 if st.button("🔄 Refresh Breweries"):
