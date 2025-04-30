@@ -1,10 +1,11 @@
 import streamlit as st
 st.set_page_config(page_title="🗺️ Brewery Locator", layout="wide")
+
 # Import theme utilities
 try:
-    from theme_utils import apply_theme
+    from theme_utils import apply_theme, get_plotly_theme
     # Apply the theme and get the current theme name
-    current_theme = apply_theme()
+    current_theme, plotly_theme = apply_theme()
 except ImportError:
     # Fallback if theme_utils.py doesn't exist yet
     if 'theme' not in st.session_state:
@@ -14,6 +15,8 @@ except ImportError:
                             index=0 if st.session_state.theme == "Light" else 1)
     if current_theme != st.session_state.theme:
         st.session_state.theme = current_theme
+    # Default plotly theme when theme_utils is not available
+    plotly_theme = "plotly_white" if st.session_state.theme == "Light" else "plotly_dark"
 
 import pandas as pd
 import sqlite3

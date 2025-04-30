@@ -189,8 +189,14 @@ div.stDateInput > div > div > input {
 </style>
 """
 
+# Define Plotly theme templates for both light and dark modes
+plotly_themes = {
+    "Light": "plotly_white",
+    "Dark": "plotly_dark"
+}
+
 def apply_theme():
-    """Apply the current theme based on session state"""
+    """Apply the current theme based on session state and return theme info"""
     # Set default theme if not present
     if 'theme' not in st.session_state:
         st.session_state.theme = "Light"
@@ -208,8 +214,17 @@ def apply_theme():
     # Apply the appropriate CSS
     if st.session_state.theme == "Dark":
         st.markdown(dark_mode_css, unsafe_allow_html=True)
+        plotly_theme = plotly_themes["Dark"]
     else:
         st.markdown(light_mode_css, unsafe_allow_html=True)
+        plotly_theme = plotly_themes["Light"]
     
-    # Return the theme for use in charts like Plotly
-    return st.session_state.theme
+    # Return both the theme name and the plotly theme template
+    return st.session_state.theme, plotly_theme
+
+def get_plotly_theme():
+    """Get the appropriate Plotly theme based on current theme setting"""
+    if st.session_state.theme == "Dark":
+        return plotly_themes["Dark"]
+    else:
+        return plotly_themes["Light"]
