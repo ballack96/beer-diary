@@ -39,6 +39,18 @@ def initialize_database_if_needed():
     )
     ''')
 
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS favorite_breweries (
+        fav_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        brewery_name TEXT,
+        city TEXT,
+        state TEXT,
+        country TEXT,
+        website_url TEXT
+        guest_id TEXT,
+    )
+    ''')
+
     # Load beers from CSV
     df = pd.read_csv('beer_data_set.csv')
     df = df[["Name", "Brewery", "Style", "ABV", "Min IBU", "Max IBU", "Description"]]
