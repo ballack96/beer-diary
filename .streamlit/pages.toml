@@ -1,29 +1,29 @@
 [[pages]]
 path = "app.py"
 name = "🏠 Home"
-icon = "house"
+icon = "🏠"
 
 [[pages]]
-path = "pages/2_🍻_Explore_Beers.py"
+path = "pages/explore.py"
 name = "🍻 Explore Beers"
-icon = "beers"
+icon = "🍺"
 
 [[pages]]
-path = "pages/3_📔_My_Tasting_Journal.py"
+path = "pages/journal.py"
 name = "📔 My Tasting Journal"
-icon = "book"
+icon = "📓"
 
 [[pages]]
-path = "pages/4_📊_Style_Explorer.py"
+path = "pages/style.py"
 name = "📊 Style Explorer"
-icon = "chart-bar"
+icon = "📊"
 
 [[pages]]
-path = "pages/5_🗺️_Brewery_Locator.py"
+path = "pages/locator.py"
 name = "🗺️ Brewery Locator"
-icon = "map"
+icon = "🗺️"
 
 [[pages]]
-path = "pages/6_📜_My_Favorite_Breweries.py"
-name = "🗺️ My Favorite Breweries.py"
-icon = "scroll"
+path = "pages/favorites.py"
+name = "📜 My Favorite Breweries"
+icon = "📜"
