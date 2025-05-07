@@ -4,6 +4,8 @@ base = "dark"  # Default theme, either "light" or "dark"
 
 [server]
 headless = true
+enableStaticServing = true
+
 
 [client]
 toolbarMode = "minimal"

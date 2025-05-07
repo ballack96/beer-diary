@@ -3,10 +3,7 @@ st.set_page_config(page_title="📔 My Tasting Journal", page_icon="📔", layou
 
 
 from theme_utils import get_app_theme
-_, text_color, _, _, _ = get_app_theme()
-
-
-
+base, text_color, bg_color, card_color, plotly_template = get_app_theme()
 
 
 import sqlite3
@@ -19,79 +16,88 @@ def get_connection():
     return sqlite3.connect('craft_beer.db')
 
 def load_journal_from_db(user_id="guest"):
-    conn = get_connection()
-    query = """
-    SELECT beer_id, brewery_name, style, abv, look, smell, taste, feel, overall,
-           average_rating, user_notes, tasted_on
-    FROM tasting_journal
-    WHERE user_id = ?
-    ORDER BY tasted_on DESC
-    """
-    df = pd.read_sql_query(query, conn, params=(user_id,))
-    conn.close()
-    return df
+    try:
+        conn = get_connection()
+        query = """
+        SELECT beer_id, brewery_name, style, abv, look, smell, taste, feel, overall,
+               average_rating, user_notes, tasted_on
+        FROM tasting_journal
+        WHERE user_id = ?
+        ORDER BY tasted_on DESC
+        """
+        df = pd.read_sql_query(query, conn, params=(user_id,))
+        conn.close()
+        return df
+    except Exception as e:
+        st.error(f"❌ Failed to load journal: {e}")
+        return pd.DataFrame()
 
 def sync_journal_to_db(session_journal, user_id="guest"):
     if not session_journal:
         return 0
 
-    conn = get_connection()
-    cursor = conn.cursor()
-
     synced = 0
-    for entry in session_journal:
-        # Check if already exists
-        cursor.execute("""
-            SELECT COUNT(*) FROM tasting_journal
-            WHERE user_id = ? AND beer_id = ? AND tasted_on = ?
-        """, (user_id, entry["beer_id"], entry["tasted_on"]))
-        if cursor.fetchone()[0] == 0:
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        for entry in session_journal:
+            # Avoid duplicates
             cursor.execute("""
-                INSERT INTO tasting_journal (
-                    user_id, beer_id, brewery_name, style, abv,
-                    look, smell, taste, feel, overall, average_rating,
-                    user_notes, tasted_on
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                user_id,
-                entry["beer_id"], entry["brewery_name"], entry["style"], entry["abv"],
-                entry["look"], entry["smell"], entry["taste"], entry["feel"], entry["overall"],
-                entry["average_rating"], entry["user_notes"], entry["tasted_on"]
-            ))
-            synced += 1
+                SELECT COUNT(*) FROM tasting_journal
+                WHERE user_id = ? AND beer_id = ? AND tasted_on = ?
+            """, (user_id, entry["beer_id"], entry["tasted_on"]))
+            if cursor.fetchone()[0] == 0:
+                cursor.execute("""
+                    INSERT INTO tasting_journal (
+                        user_id, beer_id, brewery_name, style, abv,
+                        look, smell, taste, feel, overall, average_rating,
+                        user_notes, tasted_on
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    user_id,
+                    entry["beer_id"], entry["brewery_name"], entry["style"], entry["abv"],
+                    entry["look"], entry["smell"], entry["taste"], entry["feel"], entry["overall"],
+                    entry["average_rating"], entry["user_notes"], entry["tasted_on"]
+                ))
+                synced += 1
+
+        conn.commit()
+        conn.close()
+        return synced
+    except Exception as e:
+        st.error(f"❌ Sync failed: {e}")
+        return 0
 
 def delete_entry(beer_id, tasted_on, user_id="guest"):
-    # Remove from SQLite
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        DELETE FROM tasting_journal
-        WHERE user_id = ? AND beer_id = ? AND tasted_on = ?
-    """, (user_id, beer_id, tasted_on))
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM tasting_journal
+            WHERE user_id = ? AND beer_id = ? AND tasted_on = ?
+        """, (user_id, beer_id, tasted_on))
+        conn.commit()
+        conn.close()
 
-    # Remove from session journal if present
-    st.session_state["journal"] = [
-        j for j in st.session_state.get("journal", [])
-        if not (j["beer_id"] == beer_id and j["tasted_on"] == tasted_on)
-    ]
-    st.success(f"🗑️ Deleted entry for '{beer_id}' on {tasted_on}.")
-
-
-    conn.commit()
-    conn.close()
-    return synced 
+        # Remove from session
+        st.session_state["journal"] = [
+            j for j in st.session_state.get("journal", [])
+            if not (j["beer_id"] == beer_id and j["tasted_on"] == tasted_on)
+        ]
+        st.success(f"🗑️ Deleted entry for '{beer_id}' on {tasted_on}.")
+    except Exception as e:
+        st.error(f"❌ Delete failed: {e}")
 
 # ------------------------------
 # Streamlit Page
 # ------------------------------
-st.markdown(f"<h1 style='color:{text_color}'>📔 My Tasting Journal</h1>", unsafe_allow_html=True)
-
-st.markdown(f"<p style='color:{text_color}'>All your rated beers and notes appear here.</p>", unsafe_allow_html=True)
+st.markdown(f"<style>body {{ background-color: {bg_color}; color: {text_color}; }}</style>", unsafe_allow_html=True)
+st.markdown(f"<h1>📔 My Tasting Journal</h1>", unsafe_allow_html=True)
+st.markdown(f"<p>All your rated beers and notes appear here.</p>", unsafe_allow_html=True)
 
 # -------------------------------
-# Combine session + DB journal
+# Load entries from DB and Session
 # -------------------------------
 session_entries = pd.DataFrame(st.session_state.get("journal", []))
 db_entries = load_journal_from_db()
@@ -111,10 +117,10 @@ if st.button("💾 Sync Session Journal to Database"):
         st.info("All journal entries are already synced.")
 
 # -------------------------------
-# Output
+# Display Journal
 # -------------------------------
 if combined_df.empty:
-    st.info("No entries in your tasting journal yet.")
+    st.info("📝 No entries in your tasting journal yet.")
 else:
     csv = combined_df.to_csv(index=False)
     st.download_button("⬇️ Download Journal CSV", csv, "tasting_journal.csv", "text/csv")
@@ -135,7 +141,6 @@ else:
         st.markdown(f"**Style:** {entry['style']} | **ABV:** {entry['abv']}%")
         st.markdown(f"**Notes:** {entry['user_notes']}")
 
-        # Delete Button
-        if st.button(f"🗑️ Delete Entry", key=f"delete_{entry['beer_id']}_{entry['tasted_on']}"):
+        if st.button("🗑️ Delete Entry", key=f"delete_{entry['beer_id']}_{entry['tasted_on']}"):
             delete_entry(entry['beer_id'], entry['tasted_on'])
             st.experimental_rerun()

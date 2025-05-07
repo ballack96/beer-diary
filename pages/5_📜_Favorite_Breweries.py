@@ -2,30 +2,28 @@ import streamlit as st
 st.set_page_config(page_title="📜 My Favorite Breweries", page_icon="📜", layout="wide")
 
 from theme_utils import get_app_theme
-_, text_color, _, _, _ = get_app_theme()
+base, text_color, bg_color, card_color, plotly_template = get_app_theme()
 
 
 import sqlite3
 import pandas as pd
 
 # ------------------------------
-# Database connection
+# DB Access Functions
 # ------------------------------
 def get_connection():
     return sqlite3.connect('craft_beer.db')
 
-# Fetch favorite breweries
-def load_favorites(user_id):
+def load_favorites(user_id="guest"):
     conn = get_connection()
-    favorites = pd.read_sql_query(f"""
+    favorites = pd.read_sql_query("""
         SELECT fav_id, brewery_name, city, state, country, website_url
         FROM favorite_breweries
-        WHERE user_id = '{user_id}'
-    """, conn)
+        WHERE user_id = ?
+    """, conn, params=(user_id,))
     conn.close()
     return favorites
 
-# Remove a favorite brewery
 def remove_favorite(fav_id):
     conn = get_connection()
     cursor = conn.cursor()
@@ -34,48 +32,63 @@ def remove_favorite(fav_id):
     conn.close()
 
 # ------------------------------
-# Streamlit Page
+# Page Layout
 # ------------------------------
-st.markdown(f"<h2 style='color:{text_color}'>📜 My Favorite Breweries</h2>", unsafe_allow_html=True)
-
-st.write("Display saved favorites here.")
-
+st.markdown(f"<style>body {{ background-color: {bg_color}; color: {text_color}; }}</style>", unsafe_allow_html=True)
+st.markdown(f"<h1>📜 My Favorite Breweries</h1>", unsafe_allow_html=True)
+st.markdown(f"<p>Saved breweries you’ve added from the map view.</p>", unsafe_allow_html=True)
 
 favorites_df = load_favorites(user_id="guest")
 
 if favorites_df.empty:
     st.info("You haven't saved any favorite breweries yet! 🍻")
-else:
-    # Search bar
-    search_term = st.text_input("🔍 Search Favorites by Brewery Name...")
+    st.stop()
 
-    if search_term:
-        favorites_df = favorites_df[favorites_df['brewery_name'].str.contains(search_term, case=False)]
+# ------------------------------
+# Search + Filter
+# ------------------------------
+search_term = st.text_input("🔍 Search by Brewery Name...")
 
-    st.write(f"Showing {len(favorites_df)} favorite breweries:")
+if search_term:
+    favorites_df = favorites_df[favorites_df['brewery_name'].str.contains(search_term, case=False)]
 
-    for index, row in favorites_df.iterrows():
-        st.markdown("---")
-        col1, col2 = st.columns([2, 1])
+st.markdown(f"### Showing {len(favorites_df)} favorites")
 
-        with col1:
-            st.markdown(f"### 🍺 {row['brewery_name']}")
-            st.markdown(f"**Location:** {row['city']}, {row['state']}, {row['country']}")
-            if row['website_url']:
-                st.markdown(f"**Website:** [Visit Website]({row['website_url']})")
+# ------------------------------
+# Paginated Brewery Cards
+# ------------------------------
+page_size = 5
+total_pages = (len(favorites_df) - 1) // page_size + 1
+page = st.number_input("Page", min_value=1, max_value=total_pages, value=1, step=1)
+start = (page - 1) * page_size
+end = start + page_size
 
-        with col2:
-            if st.button(f"🗑️ Remove", key=f"remove_{row['fav_id']}"):
-                remove_favorite(row['fav_id'])
-                st.success(f"Removed {row['brewery_name']} from favorites!")
-                st.experimental_rerun()
+paged_df = favorites_df.iloc[start:end]
 
-    # Allow user to download favorites
+for _, row in paged_df.iterrows():
     st.markdown("---")
-    csv = favorites_df.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="⬇️ Download Favorites as CSV",
-        data=csv,
-        file_name='favorite_breweries.csv',
-        mime='text/csv'
-    )
+    col1, col2 = st.columns([4, 1])
+
+    with col1:
+        st.subheader(f"🍺 {row['brewery_name']}")
+        st.markdown(f"**Location:** {row['city']}, {row['state']}, {row['country']}")
+        if row["website_url"]:
+            st.markdown(f"[🌐 Website]({row['website_url']})", unsafe_allow_html=True)
+
+    with col2:
+        if st.button("🗑️ Remove", key=f"remove_{row['fav_id']}"):
+            remove_favorite(row['fav_id'])
+            st.success(f"Removed {row['brewery_name']} from favorites.")
+            st.experimental_rerun()
+
+# ------------------------------
+# CSV Download
+# ------------------------------
+st.markdown("---")
+csv = favorites_df.to_csv(index=False).encode('utf-8')
+st.download_button(
+    label="⬇️ Download Favorites CSV",
+    data=csv,
+    file_name='favorite_breweries.csv',
+    mime='text/csv'
+)
