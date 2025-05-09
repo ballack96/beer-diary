@@ -17,19 +17,19 @@ st.markdown(f"<style>body {{ background-color: {bg_color}; color: {text_color}; 
 
 # UI content
 st.markdown(f"<h1>🏠 Welcome to Beer Diary</h1>", unsafe_allow_html=True)
-st.markdown(f"<p>Track your beer tasting journey, explore craft beers, and save your notes.</p>", unsafe_allow_html=True)
+st.markdown(f"<p>Welcome to your personalized craft beer tasting journal! Use the navigation panel to explore beers, styles, breweries, and keep track of your tasting notes. This app is designed to make your craft beer discovery more enjoyable, organized, and fun.</p>", unsafe_allow_html=True)
 
-# # Load and show images from static/images folder
-# image_folder = os.path.join("static", "images")
-# image_files = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.endswith((".png", ".jpg", ".jpeg"))]
-# image_files.sort()  # Optional, ensures ordered display
+# Load and show images from static/images folder
+image_folder = os.path.join("static", "images")
+image_files = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.endswith((".png", ".jpg", ".jpeg"))]
+image_files.sort()  # Optional, ensures ordered display
 
-# # Show images in 2x2 grid
-# cols = st.columns(2)
-# for idx, img_path in enumerate(image_files[:4]):  # Show only first 4
-#     with cols[idx % 2]:
-#         with open(img_path, "rb") as f:
-#             st.image(f.read(), use_column_width=True)
+# Show images in 2x2 grid
+cols = st.columns(len(image_files))
+for i, path in enumerate(image_files):
+    with open(path, "rb") as img_file:
+        image = Image.open(img_file)
+        cols[i].image(image, width=250)  # Smaller fixed width
 
 
 st.markdown(f"""
